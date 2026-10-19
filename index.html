@@ -8,7 +8,10 @@
         * { box-sizing: border-box; }
 
         body {
-            background: linear-gradient(135deg, #ffdde1 0%, #ee9ca7 50%, #a78bfa 100%);
+            /* 壁紙（読み込めないときはグラデが出る） */
+            background:
+                url('back.jpg') center / cover no-repeat fixed,
+                linear-gradient(135deg, #ffdde1 0%, #ee9ca7 50%, #a78bfa 100%);
             margin: 0;
             overflow: hidden;
             height: 100vh;
@@ -33,11 +36,39 @@
             pointer-events: none;
         }
 
-        /* 眉ボタン：画面内を自由に動く */
+        /* 背景を漂うオブジェクト（眉・smより後ろ） */
+        #bg-floaters {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floater {
+            position: absolute;
+            bottom: -80px;
+            height: auto;
+            opacity: 0.85;
+            animation: floatUp linear infinite;
+        }
+
+        @keyframes floatUp {
+            0%   { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+            10%  { opacity: 0.85; }
+            50%  { transform: translate(var(--sway), -55vh) rotate(180deg); }
+            90%  { opacity: 0.85; }
+            100% { transform: translate(calc(var(--sway) * -1), -115vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* 眉ボタン：画面内をランダムに動く */
         #eyebrow-btn {
             position: fixed;
             width: 120px;
             height: auto;
+            /* 最初の位置（画像が読み込めなくても枠は出る） */
+            left: calc(50% - 60px);
+            top: 40%;
             cursor: pointer;
             z-index: 100;
             filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
@@ -95,6 +126,9 @@
 </head>
 <body>
 
+    <!-- 背景を漂うオブジェクト（JSで並べる） -->
+    <div id="bg-floaters"></div>
+
     <div class="title">💖💓 ヽ(　´ᯅ`　)ノ 💓💖</div>
 
     <!-- 眉ボタン（これだけがボタン） -->
@@ -110,6 +144,12 @@
 
         // 飛び出す画像 (sm/sm1.png 〜 sm21.png)
         const SPAWN_IMAGES = Array.from({ length: 21 }, (_, i) => `sm/sm${i + 1}.png`);
+
+        // 背景を漂う画像 (st フォルダ)
+        const FLOATER_IMAGES = ['st/y.png', 'st/b.png', 'st/p.png'];
+        const FLOATER_COUNT = 18; // 漂う数（スマホで重いなら減らす）
+        const FLOATER_MIN = 30;   // 最小サイズ(px)
+        const FLOATER_MAX = 70;   // 最大サイズ(px)
 
         // 眉の色変化ルール：順 → 逆順 → ランダム(この回数) を繰り返す
         const RANDOM_COUNT = 6;
@@ -130,7 +170,26 @@
         }
 
         // ==========================================
-        // 3. 眉の色を決める (順 → 逆順 → ランダム)
+        // 3. 背景を漂うオブジェクトを並べる
+        // ==========================================
+        function createFloaters() {
+            const box = document.getElementById('bg-floaters');
+            for (let i = 0; i < FLOATER_COUNT; i++) {
+                const f = document.createElement('img');
+                f.className = 'floater';
+                f.src = FLOATER_IMAGES[Math.floor(Math.random() * FLOATER_IMAGES.length)];
+                f.style.left = Math.random() * 100 + 'vw';
+                f.style.width = (FLOATER_MIN + Math.random() * (FLOATER_MAX - FLOATER_MIN)) + 'px';
+                f.style.animationDuration = (10 + Math.random() * 14) + 's';
+                f.style.animationDelay = (-Math.random() * 20) + 's'; // 最初から画面に散らばらせる
+                f.style.setProperty('--sway', (Math.random() * 80 - 40) + 'px');
+                f.addEventListener('error', () => f.remove());
+                box.appendChild(f);
+            }
+        }
+
+        // ==========================================
+        // 4. 眉の色を決める (順 → 逆順 → ランダム)
         // ==========================================
         class EyebrowColor {
             constructor(count) {
@@ -171,7 +230,7 @@
         }
 
         // ==========================================
-        // 4. 飛び出す画像を出す (1 → 21 → 1 … と順番)
+        // 5. 飛び出す画像を出す (1 → 21 → 1 … と順番)
         // ==========================================
         class PopSpawner {
             constructor(images) {
@@ -213,7 +272,7 @@
         }
 
         // ==========================================
-        // 5. 眉ボタン本体
+        // 6. 眉ボタン本体
         // ==========================================
         class EyebrowButton {
             constructor(element, images, spawner) {
@@ -224,14 +283,6 @@
 
                 this.element.src = images[0];
                 this.element.addEventListener('click', () => this.handleClick());
-
-                // 最初は画面の真ん中に置く
-                const init = () => this.moveTo(
-                    (window.innerWidth - this.element.offsetWidth) / 2,
-                    (window.innerHeight - this.element.offsetHeight) / 2
-                );
-                if (this.element.complete) init();
-                else this.element.addEventListener('load', init, { once: true });
             }
 
             moveTo(left, top) {
@@ -270,11 +321,14 @@
         }
 
         // ==========================================
-        // 6. 初期化
+        // 7. 初期化
         // ==========================================
         document.addEventListener('DOMContentLoaded', () => {
             preloadImages(EYEBROW_IMAGES);
             preloadImages(SPAWN_IMAGES);
+            preloadImages(FLOATER_IMAGES);
+
+            createFloaters();
 
             const spawner = new PopSpawner(SPAWN_IMAGES);
             new EyebrowButton(document.getElementById('eyebrow-btn'), EYEBROW_IMAGES, spawner);
