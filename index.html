@@ -5,17 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>💓 ヽ(　´ᯅ`　)ノ 💓</title>
     <style>
-        /* 戻るボタンの色はここで変える */
         :root {
-            --back-bg: #ffd6ea;      /* ボタンの背景色 */
-            --back-border: #ffffff;  /* 縁取りの色 */
-            --back-text: #222222;    /* 文字の色 */
+            --back-bg: #ffd6ea;   
+            --back-border: #ffffff; 
+            --back-text: #222222; 
         }
 
         * { box-sizing: border-box; }
 
         body {
-            /* 壁紙（読み込めないときはグラデが出る） */
             background:
                 url('back.jpg') center / cover no-repeat fixed,
                 linear-gradient(135deg, #ffdde1 0%, #ee9ca7 50%, #a78bfa 100%);
@@ -43,12 +41,11 @@
             pointer-events: none;
         }
 
-        /* ポータルに戻るボタン（丸ピル型） */
         .back-btn {
             position: fixed;
             top: 16px;
             left: 16px;
-            z-index: 102; /* 眉(100)・タイトル(101)より前 */
+            z-index: 102;
             padding: 10px 26px;
             font-size: 18px;
             font-weight: bold;
@@ -66,7 +63,6 @@
             transform: scale(0.94);
         }
 
-        /* 背景を漂うオブジェクト（眉・smより後ろ） */
         #bg-floaters {
             position: fixed;
             inset: 0;
@@ -91,22 +87,18 @@
             100% { transform: translate(calc(var(--sway) * -1), -115vh) rotate(360deg); opacity: 0; }
         }
 
-        /* 眉ボタン：画面内をランダムに動く */
         #eyebrow-btn {
             position: fixed;
             width: 120px;
             height: auto;
-            /* 最初の位置（画像が読み込めなくても枠は出る） */
             left: calc(50% - 60px);
             top: 40%;
             cursor: pointer;
             z-index: 100;
             filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
-            /* 場所が変わるときにスッと滑る */
             transition: left 0.4s ease, top 0.4s ease;
         }
 
-        /* 首を傾げるように「ぶるっ」と震える */
         #eyebrow-btn.shake {
             animation: tiltShake 0.4s ease-in-out;
         }
@@ -121,7 +113,6 @@
             100% { transform: rotate(0deg) scale(1); }
         }
 
-        /* 飛び出す画像 */
         .pop-spawn {
             position: fixed;
             max-width: 40vw;
@@ -156,44 +147,30 @@
 </head>
 <body>
 
-    <!-- 背景を漂うオブジェクト（JSで並べる） -->
     <div id="bg-floaters"></div>
 
-    <!-- ポータルに戻るボタン（href は戻り先に合わせて書き換える） -->
     <a class="back-btn" href="https://megakirara.github.io/-KINOKO/">( 👁️ _ 👁️ ) 戻る❓</a>
 
     <div class="title">💖💓 ヽ(　´ᯅ`　)ノ 💓💖</div>
 
-    <!-- 眉ボタン（これだけがボタン） -->
     <img id="eyebrow-btn" src="mayu/mayu0.png" alt="眉ボタン">
 
     <script>
-        // ==========================================
-        // 1. 設定
-        // ==========================================
 
-        // 眉画像 (mayu/mayu0.png 〜 mayu5.png)
         const EYEBROW_IMAGES = Array.from({ length: 6 }, (_, i) => `mayu/mayu${i}.png`);
 
-        // 飛び出す画像 (sm/sm1.png 〜 sm21.png)
         const SPAWN_IMAGES = Array.from({ length: 21 }, (_, i) => `sm/sm${i + 1}.png`);
 
-        // 背景を漂う画像 (st フォルダ)
         const FLOATER_IMAGES = ['st/y.png', 'st/b.png', 'st/p.png', 'st/m.png', 'st/g.png'];
-        const FLOATER_COUNT = 18; // 漂う数（スマホで重いなら減らす）
-        const FLOATER_MIN = 30;   // 最小サイズ(px)
-        const FLOATER_MAX = 70;   // 最大サイズ(px)
+        const FLOATER_COUNT = 18; 
+        const FLOATER_MIN = 30;
+        const FLOATER_MAX = 70; 
 
-        // 眉の色変化ルール：順 → 逆順 → ランダム(この回数) を繰り返す
         const RANDOM_COUNT = 6;
 
-        // 画面の端から空ける余白 / 上のタイトル分の余白
         const MARGIN = 10;
         const TOP_MARGIN = 80;
 
-        // ==========================================
-        // 2. 画像の事前読み込み + 読み込み失敗の検出
-        // ==========================================
         function preloadImages(list) {
             list.forEach((src) => {
                 const img = new Image();
@@ -202,9 +179,6 @@
             });
         }
 
-        // ==========================================
-        // 3. 背景を漂うオブジェクトを並べる
-        // ==========================================
         function createFloaters() {
             const box = document.getElementById('bg-floaters');
             for (let i = 0; i < FLOATER_COUNT; i++) {
@@ -214,16 +188,13 @@
                 f.style.left = Math.random() * 100 + 'vw';
                 f.style.width = (FLOATER_MIN + Math.random() * (FLOATER_MAX - FLOATER_MIN)) + 'px';
                 f.style.animationDuration = (10 + Math.random() * 14) + 's';
-                f.style.animationDelay = (-Math.random() * 20) + 's'; // 最初から画面に散らばらせる
+                f.style.animationDelay = (-Math.random() * 20) + 's'; 
                 f.style.setProperty('--sway', (Math.random() * 80 - 40) + 'px');
                 f.addEventListener('error', () => f.remove());
                 box.appendChild(f);
             }
         }
 
-        // ==========================================
-        // 4. 眉の色を決める (順 → 逆順 → ランダム)
-        // ==========================================
         class EyebrowColor {
             constructor(count) {
                 this.count = count;
@@ -235,14 +206,11 @@
                 const max = this.count - 1;
                 const seq = [];
 
-                // 順: 0 → max（今と同じなら先頭を飛ばす）
                 for (let i = 0; i <= max; i++) seq.push(i);
                 if (seq[0] === this.lastIndex) seq.shift();
 
-                // 逆順: max-1 → 0（maxは重複させない）
                 for (let i = max - 1; i >= 0; i--) seq.push(i);
 
-                // ランダム: 直前と同じ色は連続させない
                 let prev = seq[seq.length - 1];
                 for (let n = 0; n < RANDOM_COUNT; n++) {
                     let r;
@@ -262,16 +230,12 @@
             }
         }
 
-        // ==========================================
-        // 5. 飛び出す画像を出す (1 → 21 → 1 … と順番)
-        // ==========================================
         class PopSpawner {
             constructor(images) {
                 this.images = images;
                 this.currentIndex = 0;
             }
 
-            // fromX, fromY：飛び出し始める位置 (画面座標)
             spawn(fromX, fromY) {
                 const img = document.createElement('img');
                 img.src = this.images[this.currentIndex];
@@ -279,7 +243,6 @@
                 img.style.left = `${fromX}px`;
                 img.style.top = `${fromY}px`;
 
-                // 飛んでいく先 (画面外に出ないように調整)
                 const angle = Math.random() * Math.PI * 2;
                 const distance = 100 + Math.random() * 150;
                 let targetX = fromX + Math.cos(angle) * distance;
@@ -293,7 +256,6 @@
 
                 document.body.appendChild(img);
 
-                // 終わったら消す（DOMを溜めない）
                 img.addEventListener('animationend', () => img.remove());
                 img.addEventListener('error', () => {
                     console.warn('読み込み失敗:', img.getAttribute('src'));
@@ -304,9 +266,6 @@
             }
         }
 
-        // ==========================================
-        // 6. 眉ボタン本体
-        // ==========================================
         class EyebrowButton {
             constructor(element, images, spawner) {
                 this.element = element;
@@ -323,7 +282,6 @@
                 this.element.style.top = `${top}px`;
             }
 
-            // 画面内のランダムな場所へ
             moveRandom() {
                 const w = this.element.offsetWidth;
                 const h = this.element.offsetHeight;
@@ -336,26 +294,19 @@
             }
 
             handleClick() {
-                // ぶるっと震える (連打OK)
                 this.element.classList.remove('shake');
                 void this.element.offsetWidth;
                 this.element.classList.add('shake');
 
-                // 今の眉の中心から画像を飛び出させる
                 const rect = this.element.getBoundingClientRect();
                 this.spawner.spawn(rect.left + rect.width / 2, rect.top + rect.height / 2);
 
-                // 色を次に変える
                 this.element.src = this.images[this.color.next()];
 
-                // 眉をランダムな場所へ移動
                 this.moveRandom();
             }
         }
 
-        // ==========================================
-        // 7. 初期化
-        // ==========================================
         document.addEventListener('DOMContentLoaded', () => {
             preloadImages(EYEBROW_IMAGES);
             preloadImages(SPAWN_IMAGES);
