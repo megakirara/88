@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💓 ヽ(　´ᯅ`　)ノ 💓</title>
+    <style>
+        body {
+            /*ゆめかわ背景*/
+            background: linear-gradient(135deg, #ffdde1 0%, #ee9ca7 50%, #a78bfa 100%);
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        /*ゆめかわタイトル */
+        .title {
+            position: absolute;
+            top: 30px;
+            font-size: 28px;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(255, 105, 180, 0.5);
+            font-weight: bold;
+            letter-spacing: 0.2em;
+            z-index: 101;
+        }
+
+        #main-nichi {
+            max-width: 70vw;
+            max-height: 50vh;
+            cursor: pointer;
+            z-index: 100;
+            transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            /* 親分には少し魔法っぽい光を */
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8));
+        }
+
+        #main-nichi:active { 
+            transform: scale(0.8) rotate(5deg); 
+        }
+
+        .nichi-spawn {
+            position: absolute;
+            pointer-events: none;
+            z-index: 10;
+            animation: popIn 0.4s cubic-bezier(0.26, 1.36, 0.74, 1.2) forwards;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            100% { transform: scale(1) rotate(var(--rot)); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="title">💖💓 ヽ(　´ᯅ`　)ノ 💓💖</div>
+
+    <img src="nichinichi.jpg" id="main-nichi" alt="日日" onclick="spawnRandomNichi()">
+
+    <script>
+        // ★ ここに使いたい画像ファイル名を並べるんだじょ
+        const imageList = [
+            'nichinichi.jpg', 
+            'gazo2.jpg', 
+            'mamatamento.jpg'
+        ];
+
+        function spawnRandomNichi() {
+            const nichi = document.createElement('img');
+            const randomIndex = Math.floor(Math.random() * imageList.length);
+            nichi.src = imageList[randomIndex];
+            nichi.className = 'nichi-spawn';
+
+            // サイズと位置
+            const size = Math.floor(Math.random() * 100) + 70;
+            nichi.style.width = size + 'px';
+            nichi.style.left = (Math.random() * 80 + 10) + 'vw';
+            nichi.style.top = (Math.random() * 80 + 10) + 'vh';
+            
+            // 回転
+            const rotation = Math.random() * 60 - 30; // 夢かわなので回転は控えめに
+            nichi.style.setProperty('--rot', rotation + 'deg');
+
+            document.body.appendChild(nichi);
+
+            // 増えすぎ防止
+            const all = document.getElementsByClassName('nichi-spawn');
+            if (all.length > 150) { all[0].remove(); }
+        }
+    </script>
+</body>
+</html>
