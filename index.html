@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>💓 ヽ(　´ᯅ`　)ノ 💓</title>
     <style>
+        /* 戻るボタンの色はここで変える */
+        :root {
+            --back-bg: #ffd6ea;      /* ボタンの背景色 */
+            --back-border: #ffffff;  /* 縁取りの色 */
+            --back-text: #222222;    /* 文字の色 */
+        }
+
         * { box-sizing: border-box; }
 
         body {
@@ -36,7 +43,7 @@
             pointer-events: none;
         }
 
-        /* ポータルに戻るボタン（白い丸ピル型） */
+        /* ポータルに戻るボタン（丸ピル型） */
         .back-btn {
             position: fixed;
             top: 16px;
@@ -45,13 +52,13 @@
             padding: 10px 26px;
             font-size: 18px;
             font-weight: bold;
-            color: #222;
+            color: var(--back-text);
             text-decoration: none;
             white-space: nowrap;
-            background: rgba(255, 255, 255, 0.88);
-            border: 2px solid rgba(200, 200, 210, 0.8);
+            background: var(--back-bg);
+            border: 2px solid var(--back-border);
             border-radius: 999px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 2px 10px rgba(255, 105, 180, 0.25);
             transition: transform 0.1s ease;
         }
 
