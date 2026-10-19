@@ -5,55 +5,91 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>💓 ヽ(　´ᯅ`　)ノ 💓</title>
     <style>
+        * { box-sizing: border-box; }
+
         body {
-            /*ゆめかわ背景*/
             background: linear-gradient(135deg, #ffdde1 0%, #ee9ca7 50%, #a78bfa 100%);
             margin: 0;
             overflow: hidden;
             height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
             user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            font-family: sans-serif;
         }
 
-        /*ゆめかわタイトル */
         .title {
-            position: absolute;
+            position: fixed;
             top: 30px;
+            left: 0;
+            width: 100%;
+            text-align: center;
             font-size: 28px;
             color: #fff;
             text-shadow: 2px 2px 4px rgba(255, 105, 180, 0.5);
             font-weight: bold;
             letter-spacing: 0.2em;
             z-index: 101;
+            pointer-events: none;
         }
 
-        #main-nichi {
-            max-width: 70vw;
-            max-height: 50vh;
+        /* 眉ボタン：画面内を自由に動く */
+        #eyebrow-btn {
+            position: fixed;
+            width: 120px;
+            height: auto;
             cursor: pointer;
             z-index: 100;
-            transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            /* 親分には少し魔法っぽい光を */
-            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.8));
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+            /* 場所が変わるときにスッと滑る */
+            transition: left 0.4s ease, top 0.4s ease;
         }
 
-        #main-nichi:active { 
-            transform: scale(0.8) rotate(5deg); 
+        /* 首を傾げるように「ぶるっ」と震える */
+        #eyebrow-btn.shake {
+            animation: tiltShake 0.4s ease-in-out;
         }
 
-        .nichi-spawn {
-            position: absolute;
+        @keyframes tiltShake {
+            0%   { transform: rotate(0deg) scale(1); }
+            15%  { transform: rotate(-12deg) scale(1.1); }
+            30%  { transform: rotate(10deg) scale(1.1); }
+            45%  { transform: rotate(-8deg) scale(1.05); }
+            60%  { transform: rotate(6deg) scale(1.05); }
+            75%  { transform: rotate(-3deg) scale(1.02); }
+            100% { transform: rotate(0deg) scale(1); }
+        }
+
+        /* 飛び出す画像 */
+        .pop-spawn {
+            position: fixed;
+            max-width: 40vw;
+            max-height: 40vh;
             pointer-events: none;
-            z-index: 10;
-            animation: popIn 0.4s cubic-bezier(0.26, 1.36, 0.74, 1.2) forwards;
+            z-index: 90;
+            animation: popBounce 1.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
-        @keyframes popIn {
-            0% { transform: scale(0) rotate(0deg); opacity: 0; }
-            100% { transform: scale(1) rotate(var(--rot)); opacity: 1; }
+        @keyframes popBounce {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) translate(0, 0) scale(0.2) rotate(0deg);
+            }
+            25% {
+                opacity: 1;
+                transform: translate(-50%, -50%) translate(calc(var(--tx) * 0.7), calc(var(--ty) * 0.7)) scale(1.15) rotate(calc(var(--rot) * 0.5));
+            }
+            45% {
+                transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(1) rotate(var(--rot));
+            }
+            75% {
+                opacity: 1;
+                transform: translate(-50%, -50%) translate(var(--tx), calc(var(--ty) + 10px)) scale(1) rotate(var(--rot));
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) translate(var(--tx), calc(var(--ty) + 30px)) scale(0.8) rotate(calc(var(--rot) + 10deg));
+            }
         }
     </style>
 </head>
@@ -61,38 +97,188 @@
 
     <div class="title">💖💓 ヽ(　´ᯅ`　)ノ 💓💖</div>
 
-    <img src="nichinichi.jpg" id="main-nichi" alt="日日" onclick="spawnRandomNichi()">
+    <!-- 眉ボタン（これだけがボタン） -->
+    <img id="eyebrow-btn" src="mayu/mayu0.png" alt="眉ボタン">
 
     <script>
-        // ★ ここに使いたい画像ファイル名を並べるんだじょ
-        const imageList = [
-            'nichinichi.jpg', 
-            'gazo2.jpg', 
-            'mamatamento.jpg'
-        ];
+        // ==========================================
+        // 1. 設定
+        // ==========================================
 
-        function spawnRandomNichi() {
-            const nichi = document.createElement('img');
-            const randomIndex = Math.floor(Math.random() * imageList.length);
-            nichi.src = imageList[randomIndex];
-            nichi.className = 'nichi-spawn';
+        // 眉画像 (mayu/mayu0.png 〜 mayu5.png)
+        const EYEBROW_IMAGES = Array.from({ length: 6 }, (_, i) => `mayu/mayu${i}.png`);
 
-            // サイズと位置
-            const size = Math.floor(Math.random() * 100) + 70;
-            nichi.style.width = size + 'px';
-            nichi.style.left = (Math.random() * 80 + 10) + 'vw';
-            nichi.style.top = (Math.random() * 80 + 10) + 'vh';
-            
-            // 回転
-            const rotation = Math.random() * 60 - 30; // 夢かわなので回転は控えめに
-            nichi.style.setProperty('--rot', rotation + 'deg');
+        // 飛び出す画像 (sm/sm1.png 〜 sm21.png)
+        const SPAWN_IMAGES = Array.from({ length: 21 }, (_, i) => `sm/sm${i + 1}.png`);
 
-            document.body.appendChild(nichi);
+        // 眉の色変化ルール：順 → 逆順 → ランダム(この回数) を繰り返す
+        const RANDOM_COUNT = 6;
 
-            // 増えすぎ防止
-            const all = document.getElementsByClassName('nichi-spawn');
-            if (all.length > 150) { all[0].remove(); }
+        // 画面の端から空ける余白 / 上のタイトル分の余白
+        const MARGIN = 10;
+        const TOP_MARGIN = 80;
+
+        // ==========================================
+        // 2. 画像の事前読み込み + 読み込み失敗の検出
+        // ==========================================
+        function preloadImages(list) {
+            list.forEach((src) => {
+                const img = new Image();
+                img.onerror = () => console.warn('読み込み失敗:', src);
+                img.src = src;
+            });
         }
+
+        // ==========================================
+        // 3. 眉の色を決める (順 → 逆順 → ランダム)
+        // ==========================================
+        class EyebrowColor {
+            constructor(count) {
+                this.count = count;
+                this.lastIndex = 0;
+                this.queue = [];
+            }
+
+            buildCycle() {
+                const max = this.count - 1;
+                const seq = [];
+
+                // 順: 0 → max（今と同じなら先頭を飛ばす）
+                for (let i = 0; i <= max; i++) seq.push(i);
+                if (seq[0] === this.lastIndex) seq.shift();
+
+                // 逆順: max-1 → 0（maxは重複させない）
+                for (let i = max - 1; i >= 0; i--) seq.push(i);
+
+                // ランダム: 直前と同じ色は連続させない
+                let prev = seq[seq.length - 1];
+                for (let n = 0; n < RANDOM_COUNT; n++) {
+                    let r;
+                    do {
+                        r = Math.floor(Math.random() * this.count);
+                    } while (r === prev);
+                    seq.push(r);
+                    prev = r;
+                }
+                return seq;
+            }
+
+            next() {
+                if (this.queue.length === 0) this.queue = this.buildCycle();
+                this.lastIndex = this.queue.shift();
+                return this.lastIndex;
+            }
+        }
+
+        // ==========================================
+        // 4. 飛び出す画像を出す (1 → 21 → 1 … と順番)
+        // ==========================================
+        class PopSpawner {
+            constructor(images) {
+                this.images = images;
+                this.currentIndex = 0;
+            }
+
+            // fromX, fromY：飛び出し始める位置 (画面座標)
+            spawn(fromX, fromY) {
+                const img = document.createElement('img');
+                img.src = this.images[this.currentIndex];
+                img.className = 'pop-spawn';
+                img.style.left = `${fromX}px`;
+                img.style.top = `${fromY}px`;
+
+                // 飛んでいく先 (画面外に出ないように調整)
+                const angle = Math.random() * Math.PI * 2;
+                const distance = 100 + Math.random() * 150;
+                let targetX = fromX + Math.cos(angle) * distance;
+                let targetY = fromY + Math.sin(angle) * distance;
+                targetX = Math.min(Math.max(targetX, 60), window.innerWidth - 60);
+                targetY = Math.min(Math.max(targetY, TOP_MARGIN), window.innerHeight - 60);
+
+                img.style.setProperty('--tx', `${targetX - fromX}px`);
+                img.style.setProperty('--ty', `${targetY - fromY}px`);
+                img.style.setProperty('--rot', `${(Math.random() - 0.5) * 60}deg`);
+
+                document.body.appendChild(img);
+
+                // 終わったら消す（DOMを溜めない）
+                img.addEventListener('animationend', () => img.remove());
+                img.addEventListener('error', () => {
+                    console.warn('読み込み失敗:', img.getAttribute('src'));
+                    img.remove();
+                });
+
+                this.currentIndex = (this.currentIndex + 1) % this.images.length;
+            }
+        }
+
+        // ==========================================
+        // 5. 眉ボタン本体
+        // ==========================================
+        class EyebrowButton {
+            constructor(element, images, spawner) {
+                this.element = element;
+                this.images = images;
+                this.spawner = spawner;
+                this.color = new EyebrowColor(images.length);
+
+                this.element.src = images[0];
+                this.element.addEventListener('click', () => this.handleClick());
+
+                // 最初は画面の真ん中に置く
+                const init = () => this.moveTo(
+                    (window.innerWidth - this.element.offsetWidth) / 2,
+                    (window.innerHeight - this.element.offsetHeight) / 2
+                );
+                if (this.element.complete) init();
+                else this.element.addEventListener('load', init, { once: true });
+            }
+
+            moveTo(left, top) {
+                this.element.style.left = `${left}px`;
+                this.element.style.top = `${top}px`;
+            }
+
+            // 画面内のランダムな場所へ
+            moveRandom() {
+                const w = this.element.offsetWidth;
+                const h = this.element.offsetHeight;
+                const maxLeft = Math.max(MARGIN, window.innerWidth - w - MARGIN);
+                const maxTop = Math.max(TOP_MARGIN, window.innerHeight - h - MARGIN);
+                this.moveTo(
+                    MARGIN + Math.random() * (maxLeft - MARGIN),
+                    TOP_MARGIN + Math.random() * (maxTop - TOP_MARGIN)
+                );
+            }
+
+            handleClick() {
+                // ぶるっと震える (連打OK)
+                this.element.classList.remove('shake');
+                void this.element.offsetWidth;
+                this.element.classList.add('shake');
+
+                // 今の眉の中心から画像を飛び出させる
+                const rect = this.element.getBoundingClientRect();
+                this.spawner.spawn(rect.left + rect.width / 2, rect.top + rect.height / 2);
+
+                // 色を次に変える
+                this.element.src = this.images[this.color.next()];
+
+                // 眉をランダムな場所へ移動
+                this.moveRandom();
+            }
+        }
+
+        // ==========================================
+        // 6. 初期化
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            preloadImages(EYEBROW_IMAGES);
+            preloadImages(SPAWN_IMAGES);
+
+            const spawner = new PopSpawner(SPAWN_IMAGES);
+            new EyebrowButton(document.getElementById('eyebrow-btn'), EYEBROW_IMAGES, spawner);
+        });
     </script>
 </body>
 </html>
