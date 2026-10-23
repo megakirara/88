@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💓 ヽ(　´ᯅ`　)ノ 💓</title>
+    <title>💓 ヽ( ´ᯅ` )ノ 💓</title>
     <style>
         :root {
             --back-bg: #ffd6ea;   
@@ -24,6 +24,11 @@
             -webkit-user-select: none;
             touch-action: manipulation;
             font-family: sans-serif;
+        }
+
+        img {
+            -webkit-user-drag: none;
+            user-select: none;
         }
 
         .title {
@@ -154,6 +159,17 @@
     <img id="eyebrow-btn" src="mayu/mayu0.png" alt="眉ボタン">
 
     <script>
+        "use strict";
+
+        document.addEventListener("contextmenu", (e) => {
+          e.preventDefault();
+        });
+
+        document.addEventListener("dragstart", (e) => {
+          if (e.target.tagName === "IMG") {
+            e.preventDefault();
+          }
+        });
 
         const EYEBROW_IMAGES = Array.from({ length: 6 }, (_, i) => `mayu/mayu${i}.png`);
 
