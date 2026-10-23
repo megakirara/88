@@ -3,20 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💓 ヽ( ´ᯅ` )ノ 💓</title>
+    <title>💓 ヽ(  ´ᯅ`  )ノ 💓</title>
     <style>
         :root {
-            --back-bg: #ffd6ea;   
-            --back-border: #ffffff; 
-            --back-text: #222222; 
+            --back-bg: rgba(255, 122, 217, 0.25);   
+            --back-border: #4de1ff; 
+            --back-text: #4de1ff; 
         }
 
         * { box-sizing: border-box; }
 
         body {
-            background:
-                url('neon_back.jpg') center / cover no-repeat fixed,
-                linear-gradient(135deg, #ffdde1 0%, #ee9ca7 50%, #a78bfa 100%);
+            /* 背景画像を外してCSSのネオングラデーションに変更！ */
+            background: linear-gradient(135deg, #070720 0%, #1f0a2a 50%, #0a2f38 100%);
             margin: 0;
             overflow: hidden;
             height: 100vh;
@@ -39,7 +38,7 @@
             text-align: center;
             font-size: 28px;
             color: #fff;
-            text-shadow: 2px 2px 4px rgba(255, 105, 180, 0.5);
+            text-shadow: 0 0 15px #ff7ad9, 0 0 30px #4de1ff;
             font-weight: bold;
             letter-spacing: 0.2em;
             z-index: 101;
@@ -60,8 +59,14 @@
             background: var(--back-bg);
             border: 2px solid var(--back-border);
             border-radius: 999px;
-            box-shadow: 0 2px 10px rgba(255, 105, 180, 0.25);
-            transition: transform 0.1s ease;
+            box-shadow: 0 0 12px #ff7ad9, inset 0 0 8px #ff7ad9;
+            text-shadow: 0 0 8px #4de1ff;
+            transition: transform 0.1s ease, background 0.2s, box-shadow 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 122, 217, 0.45);
+            box-shadow: 0 0 22px #ff7ad9, 0 0 12px #4de1ff;
         }
 
         .back-btn:active {
@@ -81,6 +86,7 @@
             bottom: -80px;
             height: auto;
             opacity: 0.85;
+            filter: drop-shadow(0 0 8px rgba(255, 122, 217, 0.6));
             animation: floatUp linear infinite;
         }
 
@@ -100,7 +106,7 @@
             top: 40%;
             cursor: pointer;
             z-index: 100;
-            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+            filter: drop-shadow(0 0 15px #ff7ad9) drop-shadow(0 0 30px #4de1ff);
             transition: left 0.4s ease, top 0.4s ease;
         }
 
@@ -124,6 +130,7 @@
             max-height: 40vh;
             pointer-events: none;
             z-index: 90;
+            filter: drop-shadow(0 0 12px #ff7ad9);
             animation: popBounce 1.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
